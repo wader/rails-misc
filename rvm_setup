@@ -1,0 +1,50 @@
+# install rvm and ruby (server and development)
+bash < <(curl -s https://rvm.beginrescueend.com/install/rvm)
+source ~/.rvm/scripts/rvm
+RVM_PATH=$HOME/.rvm
+rvm package install zlib
+rvm package install ncurses
+rvm package install readline
+rvm package install openssl
+rvm package install iconv
+rvm install ruby-1.9.2 \
+      --with-zlib-dir=$RVM_PATH/usr \
+      --with-ncurses-dir=$RVM_PATH/usr \
+      --with-readline-dir=$RVM_PATH/usr \
+      --with-openssl-dir=$RVM_PATH/usr \
+      --with-iconv-dir=$RVM_PATH/usr
+# install root certificates
+curl http://curl.haxx.se/ca/cacert.pem -o $RVM_PATH/usr/ssl/cert.pem
+rvm use 1.9.2
+# default rvm for cron jobs (delayed_jobs etc)
+rvm --default use 1.9.2
+
+# server
+gem install bundler
+gem install passenger
+passenger-install-apache2-module
+
+# development (installs bundle gems in $APP/vendor/bundle, will create $APP/.bundle/config with paths)
+gem install bundler
+gem install capistrano
+bundle install --without staging production test
+
+# use rvm and select ruby version
+source ~/.rvm/scripts/rvm
+rvm use 1.9.2
+
+# sass regenerate deamon
+sass --watch public/stylesheets public/stylesheets
+
+# if not capistrano: rail3 gemset
+rvm --create use 1.9.2@rails3
+rvm use 1.9.2@rails3
+
+# rails console tricks
+# log SQL quieries
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+# reload models etc (existing objects not affected)
+reload!
+# test routes
+app.root_url
+
