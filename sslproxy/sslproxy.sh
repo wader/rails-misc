@@ -5,10 +5,10 @@
 # openssl req -new -x509 -keyout dummy.pem -out dummy.pem -days 10000 -nodes
 # dont use this in production!
 
-LIGHTTPD=`which lighttpd`
-if [ "$LIGHTTPD" = "" ] ; then
-  LIGHTTPD="/opt/local/sbin/lighttpd"
-fi
+for LIGHTTPD in `which lighttpd` /opt/local/sbin/lighttpd  /usr/local/sbin/lighttpd ; do
+  if [ -x "$LIGHTTPD" ] ; then
+    exec $LIGHTTPD -D -f `dirname $0`/sslproxy.conf
+  fi
+done
 
-$LIGHTTPD -D -f `dirname $0`/sslproxy.conf
 
