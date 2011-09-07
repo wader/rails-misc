@@ -1,32 +1,26 @@
 # install rvm and ruby (server and development)
+# tested on mac os x 10.6
 bash < <(curl -s https://rvm.beginrescueend.com/install/rvm)
 source ~/.rvm/scripts/rvm
-RVM_PATH=$HOME/.rvm
-rvm package install zlib
-rvm package install ncurses
-rvm package install readline
-rvm package install openssl
-rvm package install iconv
-rvm install ruby-1.9.2 \
-      --with-zlib-dir=$RVM_PATH/usr \
-      --with-ncurses-dir=$RVM_PATH/usr \
-      --with-readline-dir=$RVM_PATH/usr \
-      --with-openssl-dir=$RVM_PATH/usr \
-      --with-iconv-dir=$RVM_PATH/usr
-# install root certificates
-curl http://curl.haxx.se/ca/cacert.pem -o $RVM_PATH/usr/ssl/cert.pem
-rvm use 1.9.2
-# default rvm for cron jobs (delayed_jobs etc)
+rvm pkg install readline
+rvm pkg install iconv
+rvm pkg install openssl
+rvm pkg install ncurses
+rvm install 1.9.2 -C \
+--enable-shared,\
+--with-readline-dir=$HOME/.rvm/usr,\
+--with-iconv-dir=$HOME/.rvm/usr,\
+--with-openssl-dir=$HOME/.rvm/usr,\
+--with-ncurses-dir=$HOME/.rvm/usr
 rvm --default use 1.9.2
+curl http://curl.haxx.se/ca/cacert.pem -o $HOME/.rvm/usr/ssl/cert.pem
 
 # server
-gem install bundler
-gem install passenger
+gem install bundler passenger capistrano capistrano-ext
 passenger-install-apache2-module
 
 # development (installs bundle gems in $APP/vendor/bundle, will create $APP/.bundle/config with paths)
-gem install bundler
-gem install capistrano
+gem install bundler capistrano capistrano-ext
 bundle install --without staging production test
 
 # use rvm and select ruby version
@@ -40,11 +34,14 @@ sass --watch public/stylesheets public/stylesheets
 rvm --create use 1.9.2@rails3
 rvm use 1.9.2@rails3
 
-# rails console tricks
+# rails console tricks etc
 # log SQL quieries
 ActiveRecord::Base.logger = Logger.new(STDOUT)
-# reload models etc (existing objects not affected)
+# reload models etc (existing instances not affected)
 reload!
-# test routes
+# test urls
 app.root_url
+# logger not line flushed in production and dont flushed at exit
+
+
 
